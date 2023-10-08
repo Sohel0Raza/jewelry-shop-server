@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const req = require("express/lib/request");
 require("dotenv").config();
 const app = express();
 const port = process.env.PORT || 5000;
@@ -26,21 +27,31 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
 
-    // const collegeCollection = client.db("campusDB").collection("colleges");
-    // const reviewCollection = client.db("campusDB").collection("review");
+    const jewelryCollection = client.db("jewelryShop").collection("allJewelry");
 
-    // app.get("/colleges", async (req, res) => {
-    //     const cursor = collegeCollection.find();
-    //     const result = await cursor.toArray();
-    //     res.send(result);
-    //   });
+    app.get("/allJewelry", async (req, res) => {
+      const cursor = jewelryCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+    app.get('/allJewelry/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await jewelryCollection.findOne(query);
+      res.send(result);
+    });
 
-    // app.get("/review", async (req, res) => {
-    //     const cursor = reviewCollection.find();
-    //     const result = await cursor.toArray();
-    //     res.send(result);
-    //   });
-    
+    app.post("/allJewelry", async (req, res) => {
+      const newJewelry = req.body
+      const result = await jewelryCollection.insertOne(newJewelry)
+      res.send(result)
+    })
+    app.delete("/allJewelry/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await jewelryCollection.deleteOne(query);
+      res.send(result);
+    });
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
@@ -52,9 +63,9 @@ async function run() {
 run().catch(console.dir);
 
 app.get("/", (req, res) => {
-    res.send("Sparkle Gems server is running...");
-  });
-  
-  app.listen(port, () => {
-    console.log(`Sparkle Gems server is running on port:${port}`);
-  });
+  res.send("Sparkle Gems server is running...");
+});
+
+app.listen(port, () => {
+  console.log(`Sparkle Gems server is running on port:${port}`);
+});
