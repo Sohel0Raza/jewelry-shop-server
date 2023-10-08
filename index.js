@@ -46,6 +46,22 @@ async function run() {
       const result = await jewelryCollection.insertOne(newJewelry)
       res.send(result)
     })
+    app.put("/allJewelry/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const option = { upsert: true };
+      const updatedJewelry = req.body;
+      const jewelry = {
+        $set: {
+          jewelryName: updatedJewelry.jewelryName,
+          price: updatedJewelry.price,
+          weight: updatedJewelry.weight,
+          description: updatedJewelry.description,
+        },
+      };
+      const result = await jewelryCollection.updateOne(filter, jewelry, option);
+      res.send(result);
+    });
     app.delete("/allJewelry/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
