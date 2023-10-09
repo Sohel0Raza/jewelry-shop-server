@@ -30,7 +30,11 @@ async function run() {
     const jewelryCollection = client.db("jewelryShop").collection("allJewelry");
 
     app.get("/allJewelry", async (req, res) => {
-      const cursor = jewelryCollection.find();
+      const query = {}
+      const option = {
+        sort:{"price": 1}
+      }
+      const cursor = jewelryCollection.find(query,option);
       const result = await cursor.toArray();
       res.send(result);
     });
